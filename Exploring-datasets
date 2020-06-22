@@ -45,6 +45,6 @@ mat2007 = scipy.io.loadmat('casts_2007.mat')
 mat2008 = scipy.io.loadmat('casts_2008.mat')
 mat2009 = scipy.io.loadmat('casts_2009.mat')
 
-# We run in some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
+# We run into some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
 ## Will do this later.
 
