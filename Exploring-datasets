@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+#### EXPLORING DATASETS IN WEEK 1 DOCUMENTATION ####
+
+import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
+import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
+import itertools; import scipy.io
+
+# Run each file separately as we want to look at each file separately for now. 
+# Can later make this code more efficient by running all the files in a loop. Will be a quick process.
+mat1977 = scipy.io.loadmat('casts_1977.mat')
+mat1978 = scipy.io.loadmat('casts_1978.mat')
+mat1979 = scipy.io.loadmat('casts_1979.mat')
+
+mat1980 = scipy.io.loadmat('casts_1980.mat')
+mat1981 = scipy.io.loadmat('casts_1981.mat')
+mat1982 = scipy.io.loadmat('casts_1982.mat')
+mat1983 = scipy.io.loadmat('casts_1983.mat')
+mat1984 = scipy.io.loadmat('casts_1984.mat')
+mat1985 = scipy.io.loadmat('casts_1985.mat')
+mat1986 = scipy.io.loadmat('casts_1986.mat')
+mat1987 = scipy.io.loadmat('casts_1987.mat')
+mat1988 = scipy.io.loadmat('casts_1988.mat')
+mat1989 = scipy.io.loadmat('casts_1989.mat')
+
+mat1990 = scipy.io.loadmat('casts_1990.mat')
+mat1991 = scipy.io.loadmat('casts_1991.mat')
+mat1992 = scipy.io.loadmat('casts_1992.mat')
+mat1993 = scipy.io.loadmat('casts_1993.mat')
+mat1994 = scipy.io.loadmat('casts_1994.mat')
+mat1995 = scipy.io.loadmat('casts_1995.mat')
+mat1996 = scipy.io.loadmat('casts_1996.mat')
+mat1997 = scipy.io.loadmat('casts_1997.mat')
+mat1998 = scipy.io.loadmat('casts_1998.mat')
+mat1999 = scipy.io.loadmat('casts_1999.mat')
+
+mat2000 = scipy.io.loadmat('casts_2000.mat')
+mat2001 = scipy.io.loadmat('casts_2001.mat')
+mat2002 = scipy.io.loadmat('casts_2002.mat')
+mat2003 = scipy.io.loadmat('casts_2003.mat')
+mat2004 = scipy.io.loadmat('casts_2004.mat')
+mat2005 = scipy.io.loadmat('casts_2005.mat')
+mat2006 = scipy.io.loadmat('casts_2006.mat')
+mat2007 = scipy.io.loadmat('casts_2007.mat')
+mat2008 = scipy.io.loadmat('casts_2008.mat')
+mat2009 = scipy.io.loadmat('casts_2009.mat')
+
+# We run in some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
+## Will do this later.
+
