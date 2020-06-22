@@ -73,3 +73,9 @@ plt.figure(figsize=(8,8))
 x = smaller_df_2009["yd"]
 y = smaller_df_2009["depth"]
 plt.plot(x, y, 'o', color='black')
+     # Better as a bar graph.
+plt.figure(figsize=(8,8))
+x = smaller_df_2009["yd"]
+y = smaller_df_2009["depth"]
+plt.bar(x,y)
+plt.show()
