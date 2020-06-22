@@ -61,3 +61,15 @@ df_2009 = pd.DataFrame(data, columns=columns)
 print(df_2009) 
 
 # Let's try to plot some exploratory graphs! #
+plt.style.use('seaborn-whitegrid')
+
+     # As a line graph. Does not look good.
+plt.figure(figsize=(8,8))
+plt.ylabel(' Depth in meters ', size = 12, rotation=90)
+plt.xlabel(' Day Count ', size = 12, rotation=0)
+plt.plot(smaller_df_2009["yd"], smaller_df_2009["depth"], linestyle='-', color='black',lw=0.5)
+     # Consequently, as a scatter plot. Still does not look good as expected.
+plt.figure(figsize=(8,8))
+x = smaller_df_2009["yd"]
+y = smaller_df_2009["depth"]
+plt.plot(x, y, 'o', color='black')
