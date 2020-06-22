@@ -48,3 +48,16 @@ mat2009 = scipy.io.loadmat('casts_2009.mat')
 # We run into some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
 ## Will do this later.
 
+# Convert from .mat file to a more familiar format ... Will try with mat2009 #
+mat2009.keys()
+type(mat2009['casts_2009']),mat2009['casts_2009'].shape
+type(mat2009['casts_2009'][0][0]),mat2009['casts_2009'][0][0].shape
+mat2009['casts_2009'][0][0]['cast'], mat2009['casts_2009'][0][0]['depth']
+[item.flat[0] for item in mat2009['casts_2009'][0][0]]
+
+data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]]
+columns = ['cast','lat', 'lon', 'yr', 'yd', 'dyd','depth','pc','vn','np','s','t','p','cru','opsid','gear']
+df_2009 = pd.DataFrame(data, columns=columns)
+print(df_2009) 
+
+# Let's try to plot some exploratory graphs! #
