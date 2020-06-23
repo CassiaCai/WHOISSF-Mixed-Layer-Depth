@@ -79,3 +79,15 @@ x = smaller_df_2009["yd"]
 y = smaller_df_2009["depth"]
 plt.bar(x,y)
 plt.show()
+     # Plotting temperature and depth
+plt.figure(figsize=(8,8))
+x = smaller_df_2009["t"]
+y = smaller_df_2009["depth"]
+plt.ylabel(' Depth in meters ', size = 16, rotation=90)
+plt.xlabel(' Temperature ', size = 16, rotation=0)
+plt.bar(x,y,0.5)
+plt.show()
+
+# QUESTIONS AND PROBLEMS
+### In the s, p, t columns, there are series within the columns after conversion to dataframe. 
+### What does this series mean?
