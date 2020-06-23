@@ -87,6 +87,23 @@ plt.ylabel(' Depth in meters ', size = 16, rotation=90)
 plt.xlabel(' Temperature ', size = 16, rotation=0)
 plt.bar(x,y,0.5)
 plt.show()
+     # Plotting locations of data collection, can interpolate data later to get smooth surface
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+ 
+longitudeneg = -1 * longitude
+latitudeneg = 1 * latitude
+
+plt.figure(figsize=(8, 8))
+
+ax = plt.axes(projection=ccrs.PlateCarree())
+ax.set_extent([-81.5, -65, 27, 44.5], ccrs.PlateCarree())
+ax.coastlines(resolution='110m')
+ax.add_feature(cartopy.feature.STATES, linewidth=1.5, edgecolor='black',alpha=0.5)
+
+plt.title('Data Collection Locations', size = 22)
+plt.plot(longitudeneg, latitudeneg,  linewidth=0, markersize=0.7, marker='o', color='red')
+plt.show()
 
 # QUESTIONS AND PROBLEMS
 ### In the s, p, t columns, there are series within the columns after conversion to dataframe. 
