@@ -90,7 +90,15 @@ plt.show()
      # Plotting locations of data collection, can interpolate data later to get smooth surface
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
- 
+
+latitude = df_2009['lat']
+print(latitude.max())
+print(latitude.min())
+
+longitude = df_2009['lon']
+print(longitude.max())
+print(longitude.min())
+
 longitudeneg = -1 * longitude
 latitudeneg = 1 * latitude
 
