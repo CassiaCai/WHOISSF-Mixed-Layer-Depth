@@ -59,6 +59,8 @@ plt.show()
 # Exploring data availability
 newlat = []
 countinorder = []
+for value in countinorder:
+     # continue from here !!!
 
 # QUESTIONS AND PROBLEMS
 ### In the s, p, t columns, there are series within the columns after conversion to dataframe. 
