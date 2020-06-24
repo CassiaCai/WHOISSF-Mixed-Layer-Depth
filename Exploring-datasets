@@ -40,9 +40,10 @@ latitudeneg = 1 * latitude
 plt.figure(figsize=(8, 8))
 
 ax = plt.axes(projection=ccrs.PlateCarree())
-ax.set_extent([-81.5, -65, 27, 44.5], ccrs.PlateCarree())
+ax.set_extent([-78, -65, 34, 44.5], ccrs.PlateCarree())
 ax.coastlines(resolution='110m')
-ax.add_feature(cartopy.feature.STATES, linewidth=1.5, edgecolor='black',alpha=0.5)
+ax.add_feature(cartopy.feature.STATES, linewidth=1.5, edgecolor='black',alpha=0.3)
+ax.add_feature(cartopy.feature.COASTLINE)
 
 gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                   linewidth=1, color='gray', alpha=0.5, linestyle='--')
