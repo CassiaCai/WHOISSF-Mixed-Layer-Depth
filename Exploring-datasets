@@ -28,42 +28,12 @@ print(df_2009)
 # Let's try to plot some exploratory graphs! #
 plt.style.use('seaborn-whitegrid')
 
-     # As a line graph. Does not look good.
-plt.figure(figsize=(8,8))
-plt.ylabel(' Depth in meters ', size = 12, rotation=90)
-plt.xlabel(' Day Count ', size = 12, rotation=0)
-plt.plot(smaller_df_2009["yd"], smaller_df_2009["depth"], linestyle='-', color='black',lw=0.5)
-     # Consequently, as a scatter plot. Still does not look good as expected.
-plt.figure(figsize=(8,8))
-x = smaller_df_2009["yd"]
-y = smaller_df_2009["depth"]
-plt.plot(x, y, 'o', color='black')
-     # Better as a bar graph.
-plt.figure(figsize=(8,8))
-x = smaller_df_2009["yd"]
-y = smaller_df_2009["depth"]
-plt.bar(x,y)
-plt.show()
-     # Plotting temperature and depth
-plt.figure(figsize=(8,8))
-x = smaller_df_2009["t"]
-y = smaller_df_2009["depth"]
-plt.ylabel(' Depth in meters ', size = 16, rotation=90)
-plt.xlabel(' Temperature ', size = 16, rotation=0)
-plt.bar(x,y,0.5)
-plt.show()
      # Plotting locations of data collection, can interpolate data later to get smooth surface
+import cartopy
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
-
-latitude = df_2009['lat']
-print(latitude.max())
-print(latitude.min())
-
-longitude = df_2009['lon']
-print(longitude.max())
-print(longitude.min())
-
+from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+ 
 longitudeneg = -1 * longitude
 latitudeneg = 1 * latitude
 
@@ -74,9 +44,20 @@ ax.set_extent([-81.5, -65, 27, 44.5], ccrs.PlateCarree())
 ax.coastlines(resolution='110m')
 ax.add_feature(cartopy.feature.STATES, linewidth=1.5, edgecolor='black',alpha=0.5)
 
-plt.title('Data Collection Locations', size = 22)
+gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                  linewidth=1, color='gray', alpha=0.5, linestyle='--')
+gl.xlabels_top = False
+gl.ylabels_left = False
+gl.xformatter = LONGITUDE_FORMATTER
+gl.yformatter = LATITUDE_FORMATTER
+
+# plt.title('Data Collection Locations', size = 22)
 plt.plot(longitudeneg, latitudeneg,  linewidth=0, markersize=0.7, marker='o', color='red')
 plt.show()
+
+# Exploring data availability
+newlat = []
+countinorder = []
 
 # QUESTIONS AND PROBLEMS
 ### In the s, p, t columns, there are series within the columns after conversion to dataframe. 
