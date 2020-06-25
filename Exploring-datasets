@@ -41,13 +41,13 @@ columns = ['cast','lat', 'lon', 'yr', 'yd', 'dyd','depth','pc','vn','np','s','t'
 df_2009 = pd.DataFrame(data, columns=columns)
 print(df_2009) 
 
-# 2b. Try working in numpy. Seems better than pandas.
+# 2b. Try working in numpy. Seems better for this than pandas.
 print(type(mat2009))
 print(mat2009.keys())
 print(type(mat2009['casts_2009']))
 np2012 = mat2009['casts_2009']
 print(np2012.dtype.names)
-np2012depth = [np2012['depth']] #takes a closer look. Array of arrays.
+np2012depth = [np2012['depth']] #takes a closer look. Array of arrays (nested arrays)
 np2012pc = [np2012['pc']]
 np2012vn = [np2012['vn']]
 np2012s = [np2012['s']]
@@ -58,7 +58,7 @@ print('--pc--',np2012pc)
 print('--vn--',np2012vn)
 print('--s--',np2012s)
 print('--t--',np2012t)
-print('--p--',np2012p)
+print('--p--',np2012p) #want to match each p, t, s etc. using indices.
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
