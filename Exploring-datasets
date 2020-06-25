@@ -18,6 +18,7 @@ for year in range(1977,2010):
 ## Will do this later.
 
 # Convert from .mat file to a more familiar format ... Will try with mat2009 #
+mat2009 = scipy.io.loadmat('casts_2009.mat')
 mat2009.keys()
 type(mat2009['casts_2009']),mat2009['casts_2009'].shape
 type(mat2009['casts_2009'][0][0]),mat2009['casts_2009'][0][0].shape
@@ -65,7 +66,3 @@ newlat = []
 countinorder = []
 for value in countinorder:
      # continue from here !!!
-
-# QUESTIONS AND PROBLEMS
-### In the s, p, t columns, there are series within the columns after conversion to dataframe. 
-### What does this series mean?
