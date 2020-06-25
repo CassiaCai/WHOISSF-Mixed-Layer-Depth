@@ -61,6 +61,8 @@ print('--t--',np2012t)
 print('--p--',np2012p) #want to match each p, t, s etc. using indices. Below shows accessing into nested array 1 for p and t.
 p1 = [i[0][0] for i in np2012p]
 t1 = [i[0][0] for i in np2012t]
+print(list(p1[0][0]))
+print(list(t1[0][0]))
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
