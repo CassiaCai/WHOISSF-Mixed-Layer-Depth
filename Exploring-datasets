@@ -36,39 +36,33 @@ type(mat2009['casts_2009'][0][0]),mat2009['casts_2009'][0][0].shape
 mat2009['casts_2009'][0][0]['cast'], mat2009['casts_2009'][0][0]['depth']
 [item.flat[0] for item in mat2009['casts_2009'][0][0]]
 
-data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]]
+data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]]                        # perhaps wrong. Can't do 'explode' to open series. ASK for help.
 columns = ['cast','lat', 'lon', 'yr', 'yd', 'dyd','depth','pc','vn','np','s','t','p','cru','opsid','gear']
 df_2009 = pd.DataFrame(data, columns=columns)
 print(df_2009) 
 
-# Let's try to plot some exploratory graphs! #
+# 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
+     # Plotting locations of data collection from all 'gears'
+import cartopy; import cartopy.crs as ccrs; from cartopy.mpl.gridliner; import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
-     # Plotting locations of data collection, can interpolate data later to get smooth surface
-import cartopy
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
- 
+latitude = df_2009['lat']
+longitude = df_2009['lon']
 longitudeneg = -1 * longitude
 latitudeneg = 1 * latitude
 
 plt.figure(figsize=(8, 8))
-
 ax = plt.axes(projection=ccrs.PlateCarree())
 ax.set_extent([-78, -65, 34, 44.5], ccrs.PlateCarree())
 ax.coastlines(resolution='110m')
 ax.add_feature(cartopy.feature.STATES, linewidth=1.5, edgecolor='black',alpha=0.3)
 ax.add_feature(cartopy.feature.COASTLINE)
-
-gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                  linewidth=1, color='gray', alpha=0.5, linestyle='--')
+gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=1, color='gray', alpha=0.5, linestyle='--')
 gl.xlabels_top = False
 gl.ylabels_left = False
 gl.xformatter = LONGITUDE_FORMATTER
 gl.yformatter = LATITUDE_FORMATTER
-
-# plt.title('Data Collection Locations', size = 22)
+plt.title('Data Collection Locations', size = 22)
 plt.plot(longitudeneg, latitudeneg,  linewidth=0, markersize=0.7, marker='o', color='red')
 plt.show()
 
