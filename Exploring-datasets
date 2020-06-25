@@ -46,9 +46,19 @@ print(type(mat2009))
 print(mat2009.keys())
 print(type(mat2009['casts_2009']))
 np2012 = mat2009['casts_2009']
-np2012.dtype.names
-np2012new = [np2012['pc']] #array of arrays.
-
+print(np2012.dtype.names)
+np2012depth = [np2012['depth']] #takes a closer look. Array of arrays.
+np2012pc = [np2012['pc']]
+np2012vn = [np2012['vn']]
+np2012s = [np2012['s']]
+np2012t = [np2012['t']]
+np2012p = [np2012['p']]
+print('--depth--',np2012depth)
+print('--pc--',np2012pc)
+print('--vn--',np2012vn)
+print('--s--',np2012s)
+print('--t--',np2012t)
+print('--p--',np2012p)
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
