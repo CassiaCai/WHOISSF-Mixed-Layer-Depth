@@ -4,7 +4,7 @@
 
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
-import itertools; import scipy.io; import mat73                                                                 #mat73 should load v7.3 files but takes a long time.
+import itertools; import scipy.io; import mat73 #mat73 should load v7.3 files but takes a long time. ASK.
 %matplotlib inline
 
 # 1. Can run each file separately as we want to look at each file separately for now. But below (kind of) loads all files.
@@ -22,13 +22,13 @@ for year in range(2015, 2019):
     filename = 'casts_{}.mat'.format(year)
     scipy.io.loadmat(filename)
     year = year + 1
-mat2011 = mat73.loadmat('casts_2011.mat')                                                                                          #takes a long time. ASK for help.
+mat2011 = mat73.loadmat('casts_2011.mat') #takes a long time. ASK.
 mat2012 = scipy.io.loadmat('casts_2012.mat')
-mat2013 = mat73.loadmat('casts_2013.mat')                                                                                          #takes a long time. ASK for help.
+mat2013 = mat73.loadmat('casts_2013.mat') #takes a long time. ASK.
 mat2014 = scipy.io.loadmat('casts_2012.mat')
 # files for 2011 and 2013 are v7.3 files. All others are scipy readable.
 
-# 2. Convert from .mat file to a more familiar format ... Will try with mat2009. Should implement into Step 1. ASK for help.
+# 2a. Convert from .mat file to a more familiar format (pandas df) ... Will try with mat2009. Should implement into Step 1. ASK.
 mat2009 = scipy.io.loadmat('casts_2009.mat')
 mat2009.keys()
 type(mat2009['casts_2009']),mat2009['casts_2009'].shape
@@ -36,10 +36,19 @@ type(mat2009['casts_2009'][0][0]),mat2009['casts_2009'][0][0].shape
 mat2009['casts_2009'][0][0]['cast'], mat2009['casts_2009'][0][0]['depth']
 [item.flat[0] for item in mat2009['casts_2009'][0][0]]
 
-data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]]                        # perhaps wrong. Can't do 'explode' to open series. ASK for help.
+data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]] #perhaps wrong. Can't do 'explode' to open series. ASK. Perhaps should not do pandas.
 columns = ['cast','lat', 'lon', 'yr', 'yd', 'dyd','depth','pc','vn','np','s','t','p','cru','opsid','gear']
 df_2009 = pd.DataFrame(data, columns=columns)
 print(df_2009) 
+
+# 2b. Try working in numpy. Seems better than pandas.
+print(type(mat2009))
+print(mat2009.keys())
+print(type(mat2009['casts_2009']))
+np2012 = mat2009['casts_2009']
+np2012.dtype.names
+np2012new = [np2012['pc']] #array of arrays.
+
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
