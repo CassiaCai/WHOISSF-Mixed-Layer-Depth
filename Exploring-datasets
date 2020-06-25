@@ -6,10 +6,14 @@ import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
 import itertools; import scipy.io
 
-# Run each file separately as we want to look at each file separately for now. 
-# Can later make this code more efficient by running all the files in a loop. Will be a quick process.
-mat2009 = scipy.io.loadmat('casts_2009.mat')
-
+# Can run each file separately as we want to look at each file separately for now. But below loads all files.
+year = 1977
+for year in range(1977,2010):
+    matfile = "{}".format(year)
+    name = 'mat'+ matfile
+    filename = 'casts_{}.mat'.format(year)
+    scipy.io.loadmat(filename)
+    year = year + 1
 # We run into some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
 ## Will do this later.
 
