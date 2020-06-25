@@ -58,14 +58,25 @@ print('--pc--',np2012pc)
 print('--vn--',np2012vn)
 print('--s--',np2012s)
 print('--t--',np2012t)
-print('--p--',np2012p) #want to match each p, t, s etc. using indices. TRY: Below shows accessing into nested array 1 for p and t. Plot quickly.
+print('--p--',np2012p) #want to match each p, t, s etc. using indices. TRY: Below shows accessing into nested array 1 for p and t.
 p1 = [i[0][0] for i in np2012p]
 t1 = [i[0][0] for i in np2012t]
 p1list = list(p1[0][0])
 t1list = list(t1[0][0])
 df_pandt = pd.DataFrame({'p':p1list,'t':t1list})
 print(df_pandt)
-plt.plot(df_pandt['t'],df_pandt['p']*-1)
+
+plt.figure(figsize=(6, 6)) #making a brief t and p plot.
+ax = plt.axes() 
+ax.yaxis.grid() # horizontal lines
+ax.xaxis.grid() # vertical lines
+ax = plt.gca()
+ax.grid(True)
+plt.xlabel('Temp',fontsize=18)
+plt.ylabel('Pressure',fontsize=18)
+plt.plot(df_pandt['t'],df_pandt['p']*-1,color='blue')
+ax.tick_params(axis = 'both', which = 'major', labelsize = 14)
+ax.tick_params(axis = 'both', which = 'minor', labelsize = 14)
 plt.show()
 
 # 3. Plot some exploratory graphs
