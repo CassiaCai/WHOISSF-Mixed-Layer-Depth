@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-##### EXPLORING DATASETS IN WEEK 1 DOCUMENTATION #####
+##### EXPLORING DATASETS IN WEEK 1 DOCUMENTATION ##### Inefficient code. Completed in Jupyter Notebook. ASK how to show code in Jupyter Notebook format.
 
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
