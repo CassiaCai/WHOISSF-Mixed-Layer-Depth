@@ -59,8 +59,8 @@ print('--vn--',np2012vn)
 print('--s--',np2012s)
 print('--t--',np2012t)
 print('--p--',np2012p) #want to match each p, t, s etc. using indices. Below shows accessing into nested array 1 for p and t.
-print([i[0][0] for i in np2012p])
-print([i[0][0] for i in np2012t])
+p1 = [i[0][0] for i in np2012p]
+t1 = [i[0][0] for i in np2012t]
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
