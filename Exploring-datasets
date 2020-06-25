@@ -14,8 +14,7 @@ for year in range(1977,2010):
     filename = 'casts_{}.mat'.format(year)
     scipy.io.loadmat(filename)
     year = year + 1
-# We run into some problems for files >= 2010. Need to use a HDF reader for matlab v7.3 files. 
-## Will do this later.
+# files for 2011 and 2013 are v7.3 files. All others are scipy readable.
 
 # Convert from .mat file to a more familiar format ... Will try with mat2009 #
 mat2009 = scipy.io.loadmat('casts_2009.mat')
