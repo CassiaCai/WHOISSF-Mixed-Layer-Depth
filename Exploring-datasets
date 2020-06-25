@@ -58,13 +58,15 @@ print('--pc--',np2012pc)
 print('--vn--',np2012vn)
 print('--s--',np2012s)
 print('--t--',np2012t)
-print('--p--',np2012p) #want to match each p, t, s etc. using indices. TRY: Below shows accessing into nested array 1 for p and t.
+print('--p--',np2012p) #want to match each p, t, s etc. using indices. TRY: Below shows accessing into nested array 1 for p and t. Plot quickly.
 p1 = [i[0][0] for i in np2012p]
 t1 = [i[0][0] for i in np2012t]
 p1list = list(p1[0][0])
 t1list = list(t1[0][0])
 df_pandt = pd.DataFrame({'p':p1list,'t':t1list})
 print(df_pandt)
+plt.plot(df_pandt['t'],df_pandt['p']*-1)
+plt.show()
 
 # 3. Plot some exploratory graphs
 plt.style.use('seaborn-whitegrid')
