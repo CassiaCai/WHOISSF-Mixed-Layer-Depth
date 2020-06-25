@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-#### EXPLORING DATASETS IN WEEK 1 DOCUMENTATION ####
+##### EXPLORING DATASETS IN WEEK 1 DOCUMENTATION #####
 
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
-import itertools; import scipy.io; import mat73                                                                  #mat73 should load v7.3 files but takes a long time.
+import itertools; import scipy.io; import mat73                                                                 #mat73 should load v7.3 files but takes a long time.
 %matplotlib inline
 
-# Can run each file separately as we want to look at each file separately for now. But below loads all files.
+# 1. Can run each file separately as we want to look at each file separately for now. But below (kind of) loads all files.
 year = 1977
 for year in range(1977,2010):
     matfile = "{}".format(year)
@@ -15,19 +15,20 @@ for year in range(1977,2010):
     filename = 'casts_{}.mat'.format(year)
     scipy.io.loadmat(filename)
     year = year + 1
+year = 2015
 for year in range(2015, 2019):
     matfile = "{}".format(year)
     name = 'mat'+ matfile
     filename = 'casts_{}.mat'.format(year)
     scipy.io.loadmat(filename)
     year = year + 1
-mat2011 = mat73.loadmat('casts_2011.mat')                                                                                           #takes a long time. Ask for help.
+mat2011 = mat73.loadmat('casts_2011.mat')                                                                                          #takes a long time. ASK for help.
 mat2012 = scipy.io.loadmat('casts_2012.mat')
-mat2013 = mat73.loadmat('casts_2013.mat')                                                                                           #takes a long time. Ask for help.
+mat2013 = mat73.loadmat('casts_2013.mat')                                                                                          #takes a long time. ASK for help.
 mat2014 = scipy.io.loadmat('casts_2012.mat')
 # files for 2011 and 2013 are v7.3 files. All others are scipy readable.
 
-# Convert from .mat file to a more familiar format ... Will try with mat2009 #
+# 2. Convert from .mat file to a more familiar format ... Will try with mat2009. Should implement into Step 1. ASK for help.
 mat2009 = scipy.io.loadmat('casts_2009.mat')
 mat2009.keys()
 type(mat2009['casts_2009']),mat2009['casts_2009'].shape
