@@ -45,7 +45,7 @@ for year in range(1977,2010):
     y = 0
     
     for y in range(0,2093):       
-        cast = [i[0][y] for i in npfile_cast] ### Cast
+        cast = [i[0][y] for i in npfile_cast] ### Cast ###### Sometimes, this throws an error "index XYZ is out of bounds for axis 0 with size XYZ". ASK.
         castlist = list(cast[0][0])
         castval = castlist[0]
         cast_list.append(castval)
