@@ -97,15 +97,6 @@ for year in range(1977,2010):
         
     year = year + 1    
             
-year = 2015
-d_second-chunk = dict()
-for year in range(2015, 2019):
-    matfile = "{}".format(year)
-    name = 'mat'+ matfile
-    filename = 'casts_{}.mat'.format(year)
-    d_second-chunk["mat{0}".format(year)] = scipy.io.loadmat(filename)
-    year = year + 1
-
 mat2012 = scipy.io.loadmat('casts_2012.mat')
 mat2014 = scipy.io.loadmat('casts_2012.mat')
 # files for 2011 and 2013 are v7.3 files. All others are scipy readable.
