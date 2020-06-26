@@ -4,82 +4,115 @@
 
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math
-import itertools; import scipy.io; import mat73 #mat73 should load v7.3 files but takes a long time. ASK.
+import itertools; import scipy.io; import mat73 
 %matplotlib inline
 
-# 1. Can run each file separately as we want to look at each file separately for now. But below (kind of) loads all files.
+# Streamlined. Should be made more efficient. ASK how.
+### The years are maleable. 
+### For 2015 to 2019 data, set range 2015 to 2020 and set year = 2015.
+### For 2012 and 2014 data, set range 2012 to 2013 and range 2014 to 2015 respectively.
+###### I don't know what to do with the v7.3 files. ASK. 
+
 year = 1977
+
 for year in range(1977,2010):
-    matfile = "{}".format(year)
-    name = 'mat'+ matfile
     filename = 'casts_{}.mat'.format(year)
-    scipy.io.loadmat(filename)
-    year = year + 1
+    file = scipy.io.loadmat(filename)
+    npfile = file['casts_{}'.format(year)]
+    
+    # print(npfile.dtype.names) ### There should be 16.
+    npfile_cast = [npfile['cast']]
+    npfile_lat = [npfile['lat']]
+    npfile_lon = [npfile['lon']]
+    npfile_yr = [npfile['yr']]
+    npfile_yd = [npfile['yd']]
+    npfile_dyd = [npfile['dyd']]
+    npfile_depth = [npfile['depth']]
+    npfile_pc = [npfile['pc']]
+    npfile_vn = [npfile['vn']]
+    npfile_np = [npfile['np']]
+    npfile_s = [npfile['s']]
+    npfile_t = [npfile['t']]
+    npfile_p = [npfile['p']]
+    npfile_cru = [npfile['cru']]
+    npfile_opsid = [npfile['opsid']]
+    npfile_gear = [npfile['gear']]
+    
+    cast_list = []; depth_list = []; lat_list = []; lon_list = []
+    yd_list = []; dyd_list = []; depth_list = []; pc_list = []
+    vn_list = []; np_list = []; cru_list = []; opsid_list = []; gear_list = []
+    
+    y = 0
+    
+    for y in range(0,2093):       
+        cast = [i[0][y] for i in npfile_cast] ### Cast
+        castlist = list(cast[0][0])
+        castval = castlist[0]
+        cast_list.append(castval)
+        lat = [i[0][y] for i in npfile_lat] ### Latitude
+        latlist = list(lat[0][0])
+        latval = latlist[0]
+        lat_list.append(latval)        
+        lon = [i[0][y] for i in npfile_lon] ### Longitude
+        lonlist = list(lon[0][0])
+        lonval = lonlist[0]
+        lon_list.append(lonval)    
+        yd = [i[0][y] for i in npfile_yd] ### yd
+        ydlist = list(yd[0][0])
+        ydval = ydlist[0]
+        yd_list.append(ydval)
+        dyd = [i[0][y] for i in npfile_dyd] ### dyd
+        dydlist = list(dyd[0][0])
+        dydval = dydlist[0]
+        dyd_list.append(dydval)
+        depth = [i[0][y] for i in np2012depth] ### Depth
+        depthlist = list(depth[0][0])
+        depthval = depthlist[0]
+        depth_list.append(depthval)
+        ###### Still missing p, vn, np, cru, opsid, and gear. Streamline this.
+        p = [i[0][y] for i in npfile_p] ### Pressure
+        plist = list(p[0][0])
+        t = [i[0][y] for i in npfile_t] ### Temperature
+        tlist = list(t[0][0])
+        s = [i[0][y] for i in npfile_s] ### Salinity
+        slist = list(s[0][0])
+        
+        df_pts = pd.DataFrame({'p':plist,'t':tlist, 's':slist})
+        
+        print(year,'; index:',y,'; dyd:',dydval,'; lat:',latval,'; lon:',lonval,'; depth:',depthval,'; cast:',castval)
+        
+        plt.style.use('ggplot')        
+        plt.subplot(1, 2, 1)
+        plt.plot(df_pts['t'],df_pts['p']*-1,color='blue')
+        plt.xlabel('Temperature')
+        plt.ylabel('Pressure')        
+        plt.subplot(1, 2, 2)
+        plt.plot(df_pts['s'],df_pts['p']*-1,color='red')
+        plt.xlabel('Salinity')
+        plt.ylabel('Pressure')
+        plt.tight_layout()
+        plt.show()
+    
+        y = y + 1
+        
+    year = year + 1    
+            
 year = 2015
+d_second-chunk = dict()
 for year in range(2015, 2019):
     matfile = "{}".format(year)
     name = 'mat'+ matfile
     filename = 'casts_{}.mat'.format(year)
-    scipy.io.loadmat(filename)
+    d_second-chunk["mat{0}".format(year)] = scipy.io.loadmat(filename)
     year = year + 1
-mat2011 = mat73.loadmat('casts_2011.mat') #takes a long time. ASK.
+
 mat2012 = scipy.io.loadmat('casts_2012.mat')
-mat2013 = mat73.loadmat('casts_2013.mat') #takes a long time. ASK.
 mat2014 = scipy.io.loadmat('casts_2012.mat')
 # files for 2011 and 2013 are v7.3 files. All others are scipy readable.
 
-# 2a. Convert from .mat file to a more familiar format (pandas df) ... Will try with mat2009. Should implement into Step 1. ASK.
-mat2009 = scipy.io.loadmat('casts_2009.mat')
-mat2009.keys()
-type(mat2009['casts_2009']),mat2009['casts_2009'].shape
-type(mat2009['casts_2009'][0][0]),mat2009['casts_2009'][0][0].shape
-mat2009['casts_2009'][0][0]['cast'], mat2009['casts_2009'][0][0]['depth']
-[item.flat[0] for item in mat2009['casts_2009'][0][0]]
+# ---------------------------------------------------------------------------------------------------------------------#
 
-data = [[row.flat[0] for row in line] for line in mat2009['casts_2009'][0]] #perhaps wrong. Can't do 'explode' to open series. ASK. Perhaps should not do pandas.
-columns = ['cast','lat', 'lon', 'yr', 'yd', 'dyd','depth','pc','vn','np','s','t','p','cru','opsid','gear']
-df_2009 = pd.DataFrame(data, columns=columns)
-print(df_2009) 
-
-# 2b. Try working in numpy. Seems better for this than pandas.
-print(type(mat2009))
-print(mat2009.keys())
-print(type(mat2009['casts_2009']))
-np2012 = mat2009['casts_2009']
-print(np2012.dtype.names)
-np2012depth = [np2012['depth']] #takes a closer look. Array of arrays (nested arrays)
-np2012pc = [np2012['pc']]
-np2012vn = [np2012['vn']]
-np2012s = [np2012['s']]
-np2012t = [np2012['t']]
-np2012p = [np2012['p']]
-print('--depth--',np2012depth)
-print('--pc--',np2012pc)
-print('--vn--',np2012vn)
-print('--s--',np2012s)
-print('--t--',np2012t)
-print('--p--',np2012p) #want to match each p, t, s etc. using indices. TRY: Below shows accessing into nested array 1 for p and t.
-p1 = [i[0][0] for i in np2012p]
-t1 = [i[0][0] for i in np2012t]
-p1list = list(p1[0][0])
-t1list = list(t1[0][0])
-df_pandt = pd.DataFrame({'p':p1list,'t':t1list})
-print(df_pandt)
-
-plt.figure(figsize=(6, 6)) #making a brief t and p plot.
-ax = plt.axes() 
-ax.yaxis.grid() # horizontal lines
-ax.xaxis.grid() # vertical lines
-ax = plt.gca()
-ax.grid(True)
-plt.xlabel('Temp',fontsize=18)
-plt.ylabel('Pressure',fontsize=18)
-plt.plot(df_pandt['t'],df_pandt['p']*-1,color='blue')
-ax.tick_params(axis = 'both', which = 'major', labelsize = 14)
-ax.tick_params(axis = 'both', which = 'minor', labelsize = 14)
-plt.show()
-
-# 3. Plot some exploratory graphs
+# 3. Plot some exploratory maps / exploring data availability.
 plt.style.use('seaborn-whitegrid')
      # Plotting locations of data collection from all 'gears'
 import cartopy; import cartopy.crs as ccrs; from cartopy.mpl.gridliner; import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
