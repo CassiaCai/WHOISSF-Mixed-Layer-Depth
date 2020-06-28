@@ -57,3 +57,95 @@ for year in range(1977, 2010):
 
 mat2012 = scipy.io.loadmat('casts_2012.mat')
 mat2014 = scipy.io.loadmat('casts_2012.mat')
+
+# 3. Exploring data availability -------------------------------------------------
+import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
+import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math; import numpy as np
+import itertools; import scipy.io; import mat73
+import cartopy; import cartopy.crs as ccrs
+from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+%matplotlib inline
+import collections, numpy
+
+filelen = []
+years = []
+Bottles = [] #Bottle
+MK3 = [] #MK-3
+SBE17 = [] #SBE-17
+SBE19 = [] #SBE-19
+MK5 = [] #MK-5
+SBE19V2 = [] #SBE-19+V2
+SBE911 = [] #SBE-911+
+SBE19plus = []
+
+for year in range(1977,2010):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)]
+    
+    filelen.append(len(npfile))
+    years.append(year)
+    Bottles_intermediate = []
+    MK3_intermediate = []
+    SBE17_intermediate = []
+    SBE19_intermediate = []
+    MK5_intermediate = []
+    SBE19V2_intermediate = []
+    SBE911_intermediate = []
+    SBE19plus_intermediate = []
+    
+    for i in range(len(npfile)):
+        a = npfile[i]['gear']
+        if a == 'Bottle':
+            Bottles_intermediate.append(i)
+        if a == 'MK-3':
+            MK3_intermediate.append(i)
+        if a == 'SBE-17':
+            SBE17_intermediate.append(i)
+        if a == 'SBE-19':
+            SBE19_intermediate.append(i)
+        if a == 'MK-5':
+            MK5_intermediate.append(i)
+        if a == 'SBE-19+V2':
+            SBE19V2_intermediate.append(i)
+        if a == 'SBE-911+':
+            SBE911_intermediate.append(i)
+        if a == 'SBE-19+':
+            SBE19plus_intermediate.append(i)
+    Bottles.append(len(Bottles_intermediate))
+    MK3.append(len(MK3_intermediate))
+    SBE17.append(len(SBE17_intermediate))
+    SBE19.append(len(SBE19_intermediate))
+    MK5.append(len(MK5_intermediate))
+    SBE19V2.append(len(SBE19V2_intermediate))
+    SBE911.append(len(SBE911_intermediate))
+    SBE19plus.append(len(SBE19plus_intermediate))
+
+# a. Plot of availability of data count of different gear types -------------------------------------------------
+df = pd.DataFrame(index=years, 
+                  data={'Bottle': Bottles, 'MK-3': MK3, 'SBE-17': SBE17,
+                        'SBE-19': SBE19, 'SBE-19+V2': SBE19V2, 'SBE-911+': SBE911,
+                        'SBE-19+': SBE19plus, 'MK-5': MK5})
+ax = df.plot(kind="bar", stacked=True)
+plt.xticks(rotation=70)
+plt.xlabel('Years',fontsize=9)
+plt.ylabel('Data Availability',fontsize=9)
+
+# b. Plot of general availability data count (as a bar graph) --------------------------------------------------
+from matplotlib.ticker import FuncFormatter
+
+year_count = years
+number_data = filelen
+
+fig, ax = plt.subplots()
+plt.bar(year_count, number_data)
+plt.xticks(year_count, ('1977','1978','1979','1980','1981',
+                        '1982','1983','1984','1985','1986','1987',
+                        '1988','1989','1990','1991','1992','1993',
+                        '1994','1995','1996','1997', '1998', '1999',
+                        '2000','2001','2001','2002','2003','2004',
+                        '2005','2006','2007','2008','2009'),fontsize=9)
+plt.xticks(rotation=70)
+plt.xlabel('Years',fontsize=10)
+plt.ylabel('Number of data locations',fontsize=10)
+plt.show()
