@@ -69,6 +69,7 @@ import collections, numpy
 
 filelen = []
 years = []
+
 Bottles = [] #Bottle
 MK3 = [] #MK-3
 SBE17 = [] #SBE-17
@@ -76,15 +77,15 @@ SBE19 = [] #SBE-19
 MK5 = [] #MK-5
 SBE19V2 = [] #SBE-19+V2
 SBE911 = [] #SBE-911+
-SBE19plus = []
+SBE19plus = [] #SBE-19+
 
 for year in range(1977,2010):
     filename = 'casts_{}.mat'.format(year)
     file = scipy.io.loadmat(filename,squeeze_me=True)
     npfile = file['casts_{}'.format(year)]
+    years.append(year)
     
     filelen.append(len(npfile))
-    years.append(year)
     Bottles_intermediate = []
     MK3_intermediate = []
     SBE17_intermediate = []
