@@ -77,7 +77,8 @@ df = pd.DataFrame(index=years,
 print(df)
 
 ### Data coverage similar to Richaud et al. 2016 Figure 7. But I have squares...want circles.
-### Maybe scatter plot works better.
+### Maybe scatter plot works better. 
+### Potential source for dot plot: https://github.com/Pjarzabek/DotPlotPython/blob/master/How%20to%20create%20dot%20plots%20in%20Python.ipynb
 from matplotlib.ticker import AutoMinorLocator; from matplotlib.ticker import FixedLocator
 
 plt.figure(figsize=(20,10))
