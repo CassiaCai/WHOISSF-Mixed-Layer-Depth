@@ -155,3 +155,15 @@ gl.yformatter = LATITUDE_FORMATTER
 plot(x,y,color='red') #bndEcoGoME
 cat = plot(x,y,color='red')
 plt.show()
+
+### Alternative. Using scipy convexhull
+df_basarray = np.array(df_b.iloc[:,0:2])
+print(len(df_basarray))
+
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
+hull = ConvexHull(df_basarray)
+
+import matplotlib.pyplot as plt
+plt.plot(df_basarray[:,0], df_basarray[:,1], 'o')
+for simplex in hull.simplices:
+    plt.plot(df_basarray[simplex,0], df_basarray[simplex,1], 'k-')
