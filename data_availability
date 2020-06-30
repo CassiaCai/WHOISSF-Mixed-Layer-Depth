@@ -111,3 +111,47 @@ plt.imshow(z,cmap = 'pink')
 im = plt.imshow(z,cmap = 'pink',vmin = 0,vmax = 500)
 cbar = plt.colorbar(im, cmap='pink', norm=norm, ticks=[0,100,200,300,400,500],aspect=50,pad=0.01)
 cbar.ax.tick_params(labelsize=8,colors='black') 
+
+### Regional data coverage...sample code
+import re
+f = open("bndEcoGoME_full.txt", "r", encoding="utf-8")
+f.read()
+
+a = str( 41.6667  66.0000\n 41.8333  66.0000\n 41.8333  66.1667\n 42.0000  66.1667\n 42.0000  66.5000\n 42.1667  66.5000\n 42.1667  
+    67.3333\n 42.0000  67.3333\n 42.0000  68.0000\n 44.3333  68.0000\n 44.3333  67.8333\n 44.5000  67.8333\n 44.5000  67.3333\n 
+    44.3333  67.3333\n 44.3333  66.5000\n 44.1667  66.5000\n 44.1667  66.3333\n 44.0000  66.3333\n 44.0000  66.1667\n 43.5000  66.1667\n 
+    43.5000  66.0000\n 42.6667  66.0000\n 42.6667  66.1667\n 42.5000  66.1667\n 42.5000  66.0000\n 42.1667  66.0000\n 42.1667  65.8333\n 
+    42.0000  65.8333\n 42.0000  65.6667\n 41.6667  65.6667\n 41.6667  66.0000\n) #output of f.read()
+
+output1 = a.split('\n')
+new = []
+for string in output1:
+    output2 = string.split(' ')
+    new.append(output2)
+lon = []
+lat = []
+for i in range(31): 
+    a = new[i][1]
+    lat.append(a)
+    b = new[i][3]
+    lon.append(b)
+lonlist = [float(i) for i in lon]
+latlist = [float(i) for i in lat]
+dfnew = pd.DataFrame({'lon': lonlist, 'lat': latlist,})
+
+x = dfnew['lon']*-1 # Plot shape onto map to see
+y = dfnew['lat'] 
+plt.figure(figsize=(8, 8))
+ax = plt.axes(projection=ccrs.PlateCarree())
+ax.set_extent([-78, -65, 34, 44.5], ccrs.PlateCarree())
+ax.add_feature(cartopy.feature.COASTLINE)
+gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                  linewidth=1, color='gray', alpha=0.5, linestyle='--')
+gl.xlabels_top = False
+gl.ylabels_left = False
+gl.xformatter = LONGITUDE_FORMATTER
+gl.yformatter = LATITUDE_FORMATTER
+# plt.scatter(dfnew['lon']*-1,dfnew['lat'])
+plot(x,y,color='red') #bndEcoGoME
+cat = plot(x,y,color='red')
+plt.show()
