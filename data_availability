@@ -1,34 +1,102 @@
 #!/usr/bin/env python
 
 ##### DATA AVAILABILITY IN WEEK 2 DOCUMENTATION ##### Completed in Jupyter Notebook. 
-
-### Import everything that I might need.
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
 import pandas as pd; import numpy.ma as ma; import time as timeit; import os; import math; import numpy as np
 import itertools; import scipy.io; import mat73; import collections
 import cartopy; import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import AutoMinorLocator; from matplotlib.ticker import FixedLocator
 %matplotlib inline
 
-### Inefficient code below.
+filelen = []; years = []
+Bottles = []; MK3 = []
+SBE17 = []; SBE19 = []
+MK5 = []; SBE19V2 = []
+SBE911 = []; SBE19plus = []
+
+for year in range(1977,2020):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)]
+    years.append(year)
+    
+    filelen.append(len(npfile))
+    Bottles_intermediate = []; MK3_intermediate = []
+    SBE17_intermediate = []; SBE19_intermediate = []
+    MK5_intermediate = []; SBE19V2_intermediate = []
+    SBE911_intermediate = []; SBE19plus_intermediate = []
+    
+    for i in range(len(npfile)):
+        a = npfile[i]['gear']
+        if a == 'Bottle':
+            Bottles_intermediate.append(i)
+        if a == 'MK-3':
+            MK3_intermediate.append(i)
+        if a == 'SBE-17':
+            SBE17_intermediate.append(i)
+        if a == 'SBE-19':
+            SBE19_intermediate.append(i)
+        if a == 'MK-5':
+            MK5_intermediate.append(i)
+        if a == 'SBE-19+V2':
+            SBE19V2_intermediate.append(i)
+        if a == 'SBE-911+':
+            SBE911_intermediate.append(i)
+        if a == 'SBE-19+':
+            SBE19plus_intermediate.append(i)
+    Bottles.append(len(Bottles_intermediate))
+    MK3.append(len(MK3_intermediate))
+    SBE17.append(len(SBE17_intermediate))
+    SBE19.append(len(SBE19_intermediate))
+    MK5.append(len(MK5_intermediate))
+    SBE19V2.append(len(SBE19V2_intermediate))
+    SBE911.append(len(SBE911_intermediate))
+    SBE19plus.append(len(SBE19plus_intermediate))
+
+df = pd.DataFrame(index=years, 
+                  data={'Bottle': Bottles,'MK-3': MK3, 
+                        'SBE-17': SBE17,'SBE-19': SBE19,
+                        'SBE-19+V2': SBE19V2,'SBE-911+': SBE911,
+                        'SBE-19+': SBE19plus,'MK-5': MK5})
+
+plt.style.use('ggplot')
+ax = df.plot(kind="bar", stacked=True, cmap = 'tab10')
+plt.gcf().set_size_inches(15, 7.5)
+plt.title('Data Collection Methods', fontsize = 20)
+plt.xlabel('Years',fontsize=13); plt.ylabel('Data Availability',fontsize=13)
+plt.savefig('datacollectionmethods_generalregion')
+plt.show()
+
+dfnew = pd.DataFrame(index=years, 
+                  data={'count': number_data})
+
+plt.style.use('ggplot')
+ax = dfnew.plot(kind="bar", stacked=False, cmap = 'tab10')
+plt.gcf().set_size_inches(15, 7.5)
+plt.title('Data Coverage', fontsize = 20)
+plt.xlabel('Years',fontsize=13); plt.ylabel('Data Availability',fontsize=13)
+plt.savefig('datacoverage_generalregion')
+plt.show()
+
 filelen = []; years = []
 jan = [] ; feb = [] ; march = [] ; april = []
 may = [] ; june = [] ; july = [] ; aug = []
 sept = [] ; octob = [] ; nov = [] ; dec = []
 
-for year in range(1977,2010):
+for year in range(1977,2020):
     filename = 'casts_{}.mat'.format(year)
     file = scipy.io.loadmat(filename,squeeze_me=True)
     npfile = file['casts_{}'.format(year)]
-    years.append(year)
+    years.append(year)    
     jan_intermediate = []; feb_intermediate = []
     march_intermediate = []; april_intermediate = []
     may_intermediate = []; june_intermediate = []
     july_intermediate = []; aug_intermediate = []
     sept_intermediate = []; octob_intermediate = []
-    nov_intermediate = []; dec_intermediate = []
-    for i in range(len(npfile)):    
+    nov_intermediate = []; dec_intermediate = []        
+    for i in range(len(npfile)):        
         a = npfile[i]['yd']
         if a <= 31:
             jan_intermediate.append(a)
@@ -53,7 +121,7 @@ for year in range(1977,2010):
         if a > 304 and a <= 334:
             nov_intermediate.append(a)
         if a > 334 and a <= 365:
-            dec_intermediate.append(a)
+            dec_intermediate.append(a)    
     jan.append(len(jan_intermediate))
     feb.append(len(feb_intermediate))
     march.append(len(march_intermediate))
@@ -66,42 +134,45 @@ for year in range(1977,2010):
     octob.append(len(octob_intermediate))
     nov.append(len(nov_intermediate))
     dec.append(len(dec_intermediate))
-    
+ 
 df = pd.DataFrame(index=years, 
                   data={'1': jan,'2': feb,'3': march,'4': april,'5': may,
                         '6': june,'7': july,'8': aug,'9': sept,'10': octob,
                         '11': nov,'12': dec})
 print(df)
+print(df.values)
+print(len(df.values))
 
-### Data coverage similar to Richaud et al. 2016 Figure 7. But I have squares...want circles.
-### Maybe scatter plot works better. 
-### Potential source for dot plot: https://github.com/Pjarzabek/DotPlotPython/blob/master/How%20to%20create%20dot%20plots%20in%20Python.ipynb
-plt.figure(figsize=(20,10))
-z = df.values
+plt.gcf().set_size_inches(30, 15)
+
+im = plt.imshow(z,cmap = 'pink')
+
+plt.yticks(np.arange(43))
+
 minor_locator1 = AutoMinorLocator(2)
 minor_locator2 = FixedLocator([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,
                               8.5,9.5,10.5,11.5,12.5,13.5,14.5,
                               15.5,16.5,17.5,18.5,19.5,20.5,21.5,
                               22.5,23.5,24.5,25.5,26.5,27.5,28.5,29.5,
-                              30.5,31.5,32.5])
+                              30.5,31.5,32.5,33.5,34.5,35.5,36.5,37.5,38.5,39.5,40.5,41.5,42.5])
 plt.gca().xaxis.set_minor_locator(minor_locator1)
 plt.gca().yaxis.set_minor_locator(minor_locator2)
 plt.grid(which='minor',color='white',linewidth=5)
 plt.grid(b=True, which='major', color='black', linestyle='')
+
 plt.xticks(np.arange(12), ['1', '2', '3','4','5','6','7','8','9','10','11','12'],fontsize=8,color='black')
-plt.yticks(np.arange(33), ['1977','1978','1979','1980','1981','1982','1983','1984','1985','1986',
-                          '1987','1988','1989','1989','1990','1991','1992','1993','1994','1995','1996',
+plt.yticks(np.arange(43), ['1977','1978','1979','1980','1981','1982','1983','1984','1985','1986',
+                          '1987','1988','1989','1990','1991','1992','1993','1994','1995','1996',
                           '1997','1998','1999','2000','2001','2002','2003','2004','2005','2006',
-                          '2007','2008','2009'],fontsize=8,color='black')
-plt.xlabel('Month',fontsize=12,color='black')
-plt.ylabel('Year',fontsize=12,color='black')
-plt.box(False)
-plt.tick_params(axis='y', which='minor', colors='white')
-plt.tick_params(axis='x', which='minor', colors='white')
-plt.imshow(z,cmap = 'pink')
-im = plt.imshow(z,cmap = 'pink',vmin = 0,vmax = 500)
-cbar = plt.colorbar(im, cmap='pink', norm=norm, ticks=[0,100,200,300,400,500],aspect=50,pad=0.01)
-cbar.ax.tick_params(labelsize=8,colors='black') 
+                          '2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019'],fontsize=11,color='black')
+im = plt.imshow(z,cmap = 'pink',vmin = 0,vmax = 600)
+cbar = plt.colorbar(im, cmap='pink', ticks=[0,100,200,300,400,500,600],aspect=50,pad=0.01)
+cbar.outline.set_edgecolor('black')
+cbar.ax.tick_params(labelsize=11,colors='black') 
+plt.savefig('datacoverage_squares_generalregion.png')
+plt.show()
+
+### Random work in progress kept below
 
 ### Regional data coverage...sample code
 import re
@@ -227,12 +298,8 @@ for simplex in hull.simplices:
 pylab.plot(p[:,0], p[:,1], '^r')
 pylab.show() # Evidently not, given that we set p = df_a.values
 
-
-
-### Random Workings kept here
 x_a = df_a['lon']*-1; y_a = df_a['lat']
 x_b = df_b['lon']*-1; y_b = df_b['lat']
 plot(x_a,y_a)
 plot(x_b,y_b)
 show()
-# -------
