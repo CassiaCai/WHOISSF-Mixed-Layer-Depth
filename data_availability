@@ -146,9 +146,9 @@ plt.show()
 
 ### Alternative. Using scipy convexhull
 import re
-f = open("bndEcoGoME_full.txt", "r", encoding="utf-8")
-# f.read()
-g = open("bndEcoGoMW_full.txt", "r", encoding="utf-8")
+f = open("bndEcoGoME_full.txt", "r", encoding="utf-8") # associated with a
+f.read()
+g = open("bndEcoGoMW_full.txt", "r", encoding="utf-8") # associated with b
 g.read()
 
 a = ' 41.6667  66.0000\n 41.8333  66.0000\n 41.8333  66.1667\n 42.0000  66.1667\n 42.0000  66.5000\n 42.1667  66.5000\n 42.1667  67.3333\n 42.0000  67.3333\n 42.0000  68.0000\n 44.3333  68.0000\n 44.3333  67.8333\n 44.5000  67.8333\n 44.5000  67.3333\n 44.3333  67.3333\n 44.3333  66.5000\n 44.1667  66.5000\n 44.1667  66.3333\n 44.0000  66.3333\n 44.0000  66.1667\n 43.5000  66.1667\n 43.5000  66.0000\n 42.6667  66.0000\n 42.6667  66.1667\n 42.5000  66.1667\n 42.5000  66.0000\n 42.1667  66.0000\n 42.1667  65.8333\n 42.0000  65.8333\n 42.0000  65.6667\n 41.6667  65.6667\n 41.6667  66.0000\n'
@@ -226,3 +226,13 @@ for simplex in hull.simplices:
     pylab.plot(points[simplex,0], points[simplex,1], 'k-')
 pylab.plot(p[:,0], p[:,1], '^r')
 pylab.show() # Evidently not, given that we set p = df_a.values
+
+
+
+### Random Workings kept here
+x_a = df_a['lon']*-1; y_a = df_a['lat']
+x_b = df_b['lon']*-1; y_b = df_b['lat']
+plot(x_a,y_a)
+plot(x_b,y_b)
+show()
+# -------
