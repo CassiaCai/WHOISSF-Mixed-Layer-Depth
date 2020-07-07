@@ -20,17 +20,46 @@ for year in range(2019,2020):
         t = npfile[i]['t']
         lat = npfile[i]['lat']
         lon = npfile[i]['lon']
-        if yd >= 0 and yd <= 365: #273 to 304
+        if yd >= 273 and yd <= 274: #try a very small range
             print(yd, '---', lon, '---',lat)
             df_pts = pd.DataFrame({'p':p,'t':t})
             df_ptsnew = df_pts.dropna()
             df_final = pd.DataFrame(df_ptsnew.values) # 0 is pressure, 1 is temperature
-            l=[i for i in df_final[0] if i<=5]
+#             print(df_final)
+            l=[i for i in df_final[0] if i<=6]
             if len(l) > 0:
                 surfaceval = []
+                numrange = []
                 for ii in range(len(l)):
-#                     print(df_final[1][ii])
                     val = df_final[1][ii]
+                    numrange.append(ii)
                     surfaceval.append(val)
             surfacevalmean = statistics.mean(surfaceval)
-            print(surfacevalmean)
+            print('surfacetemp:', surfacevalmean)
+            tempfin = []
+            pressurefin = []
+            threshold = surfacevalmean - 0.2
+            print('threshold:', threshold)
+            for iii in range(numrange[-1],len(df_final)):
+                tempfin.append(df_final[1][iii])
+                pressurefin.append(df_final[0][iii])
+            d = {'temp': list(reversed(tempfin)), 'pressure': list(reversed(pressurefin))}
+            dffin = pd.DataFrame(d)
+            print(dffin) 
+            pnew = []
+            for i in range(len(dffin)):
+                if dffin.at[i,'temp'] >= threshold:
+                    print(dffin.at[i,'temp'],dffin.at[i,'pressure'])
+                    pnew.append(dffin.at[i,'pressure'])
+                    break
+#             print(pnew)
+            print('')
+            yplottable = pnew[0]*-1
+#             print(yplottable)
+
+            plt.style.use('ggplot')        
+            plt.plot(df_final[1],df_final[0]*-1,color='blue')
+            plt.axhline(y=yplottable, color='r', linestyle='--')
+            plt.xlabel('Temperature')
+            plt.ylabel('Pressure')        
+            plt.show()
