@@ -8,7 +8,7 @@ from matplotlib.ticker import FuncFormatter; from matplotlib.ticker import AutoM
 from shapely.geometry import Point; from shapely.geometry.polygon import Polygon; import statistics
 %matplotlib inline
 
-for year in range(2019,2020):
+for year in range(2009,2010):
     filename = 'casts_{}.mat'.format(year)
     file = scipy.io.loadmat(filename,squeeze_me=True)
     npfile = file['casts_{}'.format(year)]
@@ -20,9 +20,12 @@ for year in range(2019,2020):
         t = npfile[i]['t']
         lat = npfile[i]['lat']
         lon = npfile[i]['lon']
-        if yd >= 283: #273 to 304 Try very small range
-#         if yd >= 0 and yd <= 365: # Can try seasons / months
-            print(yd, '---', lon, '---',lat)
+        floordepth = npfile[i]['depth']
+        if yd <= 31: #273 to 304 Try very small range
+#         if yd >= 273 and yd <= 304: # Can try seasons / months
+            print('day:',yd, '---', 'lon:',lon, 'lat:','---',lat)
+            print('')
+            print('floor depth:              ', floordepth)
             df_pts = pd.DataFrame({'p':p,'t':t})
             df_ptsnew = df_pts.dropna()
             df_final = pd.DataFrame(df_ptsnew.values) # 0 is pressure, 1 is temperature
@@ -36,7 +39,7 @@ for year in range(2019,2020):
                     numrange.append(ii)
                     surfaceval.append(val)
             surfacevalmean = statistics.mean(surfaceval)
-            print('surfacetemp:', surfacevalmean)
+            print('surfacetemp avg of top 5m:', surfacevalmean)
             tempfin = []
             pressurefin = []
 #             threshold = surfacevalmean - 0.2
@@ -52,18 +55,19 @@ for year in range(2019,2020):
             for i in range(len(dffin)):
                 b = dffin.at[i,'temp']
                 if b <= (surfacevalmean + 0.2) and b >= (surfacevalmean - 0.2):
-                    print(b, dffin.at[i,'pressure'])
+                    print('temperature at depth:     ',b)
+                    print('depth:                    ',dffin.at[i,'pressure'])
                     pnew.append(dffin.at[i,'pressure'])
                     break
-            print(pnew)
             if len(pnew) > 0:
                 yplottable = pnew[0]*-1
-                print(yplottable)
+#                 print(yplottable)
             
-                plt.style.use('seaborn-white')  
-                plt.plot(df_final[1],df_final[0]*-1,color='blue')
-                plt.axhline(y=yplottable, color='r', linestyle='--')
-                plt.xlabel('Temperature (°C)')
-                plt.ylabel('Pressure (m)')
-                plt.grid(False)
-                plt.show()
+            plt.style.use('seaborn-white')  
+            plt.plot(df_final[1],df_final[0]*-1,color='blue')
+            plt.axhline(y=yplottable, color='r', linestyle='--')
+            plt.xlabel('Temperature (°C)')
+            plt.ylabel('Pressure (m)')
+            plt.grid(False)
+            plt.show()
+            print('----------------------------------------------')
