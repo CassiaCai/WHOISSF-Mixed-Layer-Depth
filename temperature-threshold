@@ -5,7 +5,7 @@ import pandas as pd; import numpy.ma as ma; import time as timeit; import os; im
 import itertools; import scipy.io; import collections; import cartopy; import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from matplotlib.ticker import FuncFormatter; from matplotlib.ticker import AutoMinorLocator; from matplotlib.ticker import FixedLocator
-from shapely.geometry import Point; from shapely.geometry.polygon import Polygon
+from shapely.geometry import Point; from shapely.geometry.polygon import Polygon; import statistics
 %matplotlib inline
 
 for year in range(2019,2020):
