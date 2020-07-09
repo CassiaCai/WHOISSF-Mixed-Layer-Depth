@@ -60,7 +60,7 @@ for year in range(2009,2010):
                         print('ALL MIXED')
 #                         pnew.append(floordepth)
                         print('----------------------------------------------')
-                    if dffin.at[i,'pressure'] == df_final[0].iloc[-1]:
+                    elif dffin.at[i,'pressure'] == df_final[0].iloc[-1]:
                         print('INCONCLUSIVE')
                         print('----------------------------------------------')
                     else:
