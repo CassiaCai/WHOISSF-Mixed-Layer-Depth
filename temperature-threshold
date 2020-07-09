@@ -21,8 +21,8 @@ for year in range(2009,2010):
         lat = npfile[i]['lat']
         lon = npfile[i]['lon']
         floordepth = npfile[i]['depth']
-        if yd <= 31: #273 to 304 Try very small range
-#         if yd >= 273 and yd <= 304: # Can try seasons / months
+        if yd == 18: #273 to 304 Try very small range
+#         if yd > 31 and yd <= 59: # Can try seasons / months
             print('day:',yd, '---', 'lon:',lon, 'lat:','---',lat)
             print('')
             print('floor depth:              ', floordepth)
@@ -51,23 +51,31 @@ for year in range(2009,2010):
             d = {'temp': list(reversed(tempfin)), 'pressure': list(reversed(pressurefin))}
             dffin = pd.DataFrame(d)
             pnew = []
-
             for i in range(len(dffin)):
                 b = dffin.at[i,'temp']
                 if b <= (surfacevalmean + 0.2) and b >= (surfacevalmean - 0.2):
                     print('temperature at depth:     ',b)
                     print('depth:                    ',dffin.at[i,'pressure'])
-                    pnew.append(dffin.at[i,'pressure'])
-                    break
-            if len(pnew) > 0:
-                yplottable = pnew[0]*-1
-#                 print(yplottable)
+                    if dffin.at[i,'pressure'] >= floordepth - 6:
+                        print('ALL MIXED')
+#                         pnew.append(floordepth)
+                        print('----------------------------------------------')
+                    if dffin.at[i,'pressure'] == df_final[0].iloc[-1]:
+                        print('INCONCLUSIVE')
+                        print('----------------------------------------------')
+                    else:
+                        print(dffin.at[i,'pressure'])
+                        pnew.append(dffin.at[i,'pressure'])
+                        if len(pnew) > 0:
+                            yplottable = pnew[0]*-1
+
             
-            plt.style.use('seaborn-white')  
-            plt.plot(df_final[1],df_final[0]*-1,color='blue')
-            plt.axhline(y=yplottable, color='r', linestyle='--')
-            plt.xlabel('Temperature (°C)')
-            plt.ylabel('Pressure (m)')
-            plt.grid(False)
-            plt.show()
-            print('----------------------------------------------')
+                        plt.style.use('seaborn-white')  
+                        plt.plot(df_final[1],df_final[0]*-1,color='blue')
+                        plt.axhline(y=yplottable, color='r', linestyle='--')
+                        plt.xlabel('Temperature (°C)')
+                        plt.ylabel('Pressure (m)')
+                        plt.grid(False)
+                        plt.show()
+                        print('----------------------------------------------')                        
+                    break
