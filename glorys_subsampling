@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+######## VERY MESSY FILE #####
 
 #### DONWLOAD ALL NECESSARY PACKAGES ####
 import matplotlib.pyplot as plt; import numpy as np; import netCDF4; from netCDF4 import Dataset
@@ -663,3 +664,631 @@ plt.savefig('something.png')
 plt.tight_layout()
 
 #### -------------------------------------------------- ####
+pointstouse = []
+finaldepth = []; finallat = [];finallon = []
+zi_listofarrays = []
+for year in range(1993,2020):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)] 
+    lat_intermediate = []; lon_intermediate = []; p_intermediate = []; t_intermediate = []; yd_intermediate = []
+    seasonyeardepth = []; seasonyeartemp = []; counterii = []   
+    for i in range(len(npfile)):
+        yd = npfile[i]['yd']
+        p = npfile[i]['p']
+        s = npfile[i]['s']
+        t = npfile[i]['t']
+        lon = npfile[i]['lon']
+        lat = npfile[i]['lat']
+        floordepth = npfile[i]['depth']
+        if yd >= 0 and yd <= 31:
+            lat_intermediate.append(npfile[i]['lat'])
+            lon_intermediate.append(npfile[i]['lon'])
+            p_intermediate.append(npfile[i]['p'])
+            t_intermediate.append(npfile[i]['t'])
+            yd_intermediate.append(npfile[i]['yd'])   
+    month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate})
+    newdf = pd.DataFrame({'lon': lon_intermediate,'lat': lat_intermediate,'date': yd_intermediate})    
+    for ii in range(len(month_df)):
+        new = newdf.iloc[ii].values
+        point = Point(new)
+        if isinstance(month_df['p'].iloc[ii], int) or isinstance(month_df['p'].iloc[ii], float) or isinstance(month_df['t'].iloc[ii], int) or isinstance(month_df['t'].iloc[ii], float):
+            pass
+        elif polygon_v.contains(point) == True:
+#         elif polygon_x.contains(point) == True or polygon_y.contains(point) == True or polygon_t.contains(point) == True or polygon_w.contains(point) == True or polygon_v.contains(point) == True:
+            pt_df = pd.DataFrame({'p': month_df['p'].iloc[ii],'t': month_df['t'].iloc[ii]}) 
+            df_ptsnew = pt_df.dropna()
+            df_final = pd.DataFrame(df_ptsnew.values)
+            l=[i for i in df_final[0] if i<=6]
+            if len(l) > 0:
+                surfaceval = []
+                numrange = []
+                for iii in range(len(l)):
+                    val = df_final[1][iii]
+                    numrange.append(iii)
+                    surfaceval.append(val)
+            surfacevalmean = statistics.mean(surfaceval)
+            tempfin = []
+            pressurefin = []
+            for iii in range(numrange[-1],len(df_final)):
+                tempfin.append(df_final[1][iii])
+                pressurefin.append(df_final[0][iii])
+            d = {'temp': list(reversed(tempfin)), 'pressure': list(reversed(pressurefin))}
+            dffin = pd.DataFrame(d)
+            for ix in range(len(dffin)):
+                b = dffin.at[ix,'temp']
+                if b <= (surfacevalmean + 0.2) and b >= (surfacevalmean - 0.2):
+                    if dffin.at[ix,'pressure'] >= floordepth - 6:
+                        if dffin.at[ix,'pressure'] < 200:
+                            seasonyeardepth.append(dffin.at[ix,'pressure'])
+                            counterii.append(ii)
+                            seasonyeartemp.append(dffin.at[ix,'temp'])
+                        else:
+                            pass
+                    elif dffin.at[ix,'pressure'] == df_final[0].iloc[-1]:
+                        pass
+                    elif dffin.at[ix,'pressure'] == 0:
+                        pass
+                    else:
+                        if dffin.at[ix,'pressure'] < 200:
+                            seasonyeardepth.append(dffin.at[ix,'pressure'])
+                            seasonyeartemp.append(dffin.at[ix,'temp'])
+                            np.array(seasonyeartemp)
+                            np.array(seasonyeardepth)
+                            counterii.append(ii)
+                        else:
+                            pass
+                    break
+    inlat = []; inlon = []; date = []
+    for timer in counterii:
+        inlat.append(newdf['lat'][timer])
+        inlon.append(newdf['lon'][timer])
+        date.append(newdf['date'][timer])
+    if len(seasonyeardepth) > 0:    
+        print(year)
+#         print(seasonyeardepth)
+#         print(inlat)
+#         print(inlon)
+#         print(date)
+        full = pd.DataFrame({'mld': seasonyeardepth,'lat': inlat, 'lon': inlon, 'date': date}) 
+#         print(full)
+        finaldepth.append(seasonyeardepth)
+    
+    for x in range(len(date)):
+        use=DS.sel(time=slice('{}-01-01'.format(year),'{}-01-31'.format(year)))        
+        locate_date = use.sel(time=use.time.dt.day==date[x])
+        mld_locate_date = locate_date.mlotst.values[0]
+    
+        lat = np.array(locate_date.mlotst['latitude'][:])
+        long = np.array(locate_date.mlotst['longitude'][:])
+    
+        lonneg = [float(i)*-1 for i in inlon]
+        distanceslat = []; distanceslon = []
+        for i in range(133):
+            distanceslat.append((inlat[x] - lat[i])**2)
+            index_min_lat = min(range(len(distanceslat)), key=distanceslat.__getitem__)
+        for ii in range(181):
+            distanceslon.append((lonneg[x] - long[ii])**2)
+            index_min_lon = min(range(len(distanceslon)), key=distanceslon.__getitem__)
+        lat_index_use, lon_index_use = index_min_lat, index_min_lon
+        pointstouse.append(mld_locate_date[lat_index_use, lon_index_use])    
+print(len(pointstouse))
+mld_nefsc = sum(finaldepth, [])
+print(len(mld_nefsc))
+
+plt.figure(figsize=(12, 8))
+plt.style.use('seaborn-white')
+plt.ylim(0,100)
+plt.xlim(0,100)
+plt.scatter(mld_nefsc, pointstouse)
+plt.xlabel('Glorys MLD (m)', fontsize = 15)
+plt.ylabel('NEFSC MLD (m)', fontsize = 15)
+plt.xticks([0,10,20,30,40,50,60,70,80,90,100], fontsize = 15) 
+plt.yticks([0,10,20,30,40,50,60,70,80,90,100], fontsize = 15) 
+plt.show()
+
+#### -------------------------------------------------- ####
+###### SAMPLING FROM GLORYS #####
+fname ='global-reanalysis-phy-001-030-daily_1596465428590.nc'
+DS=xr.open_dataset(fname)
+data_1993_2018=DS.sel(time=slice('1993-01-01','2018-12-25')) # entire time frame
+mld = data_1993_2018.mlotst
+print(full)
+
+pointstouse = []
+for x in range(len(date)):
+    locate_date = jan_1993.sel(time=jan_1993.time.dt.day==date[x])
+    mld_locate_date = locate_date.mlotst.values[0]
+    
+    lat = np.array(usenow['latitude'][:])
+    long = np.array(usenow['longitude'][:])
+
+    distanceslat = []; distanceslon = []
+    for i in range(133):
+        distanceslat.append((lat_input[x] - lat[i])**2)
+        index_min_lat = min(range(len(distanceslat)), key=distanceslat.__getitem__)
+    for ii in range(181):
+        distanceslon.append((lonneg[x] - long[ii])**2)
+        index_min_lon = min(range(len(distanceslon)), key=distanceslon.__getitem__)
+    lat_index_use, lon_index_use = index_min_lat, index_min_lon
+    pointstouse.append(mld_locate_date[lat_index_use, lon_index_use])
+
+print(mld)
+print(pointstouse)
+plt.figure(figsize=(12, 8))
+plt.style.use('seaborn-white')
+plt.scatter(mld, pointstouse)
+plt.xlabel('Glorys MLD (m)', fontsize = 15)
+plt.ylabel('NEFSC MLD (m)', fontsize = 15)
+plt.show()
+
+lonneg = [float(i)*-1 for i in lon]
+print(lonneg)
+print(lat_input)
+
+#### -------------------------------------------------- ####
+###### DENSITY-DERIVED MLD ######
+SA = [1,1] # TRY THIS
+pt = [2.1,2.3]
+
+import gsw
+print(gsw.CT_from_pt(SA,pt))
+CT = gsw.CT_from_pt(SA,pt)
+print(gsw.sigma0(SA,CT))
+
+pointstouse = []; finallatestdepth = []
+finalfinaldepth = []; finalfinalratio = []; filteredMLDlist = []; meanfilteredMLDlist = []; stdfilteredMLDlist = []; years = []; bananasplitmean = []; bananasplitstd = [];floormean = [];floorstd = []; latfinal = []; lonfinal = []; ratiofinal = [];bottomdfinal = []; filteredfloorslist = [];zi_listofarrays = []
+
+for year in range(1993,1994):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)]
+    lat_intermediate = []; lon_intermediate = []; p_intermediate = []; t_intermediate = []; yd_intermediate = []; sal_intermediate = []
+    finaldepth = []; finallat = [];finallon = []
+    seasonyeardepth = []; seasonyeartemp = [];seasonyearsal = []; seasonyeardens = []; counterii = []; floors = []; floor_intermediate = []; s_intermediate = [];seasonyearsal = []; lat = []; lon = []; lonneg = []
+    
+    for i in range(len(npfile)):
+        yd = npfile[i]['yd']
+        p = npfile[i]['p']
+        s = npfile[i]['s']
+        t = npfile[i]['t']
+        gear = npfile[i]['gear']
+        floordepth = npfile[i]['depth']
+        if gear == 'Bottle':
+            pass
+        elif yd > 181 and yd <= 212:
+            lat_intermediate.append(npfile[i]['lat'])
+            lon_intermediate.append(npfile[i]['lon'])
+            p_intermediate.append(npfile[i]['p'])
+            t_intermediate.append(npfile[i]['t'])
+            yd_intermediate.append(npfile[i]['yd'])
+            sal_intermediate.append(npfile[i]['s'])
+            floor_intermediate.append(npfile[i]['depth'])
+    month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate,'depth': floor_intermediate, 's': sal_intermediate})
+#     month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate, 's': sal_intermediate})
+    newdf = pd.DataFrame({'lon': lon_intermediate,'lat': lat_intermediate,'date': yd_intermediate})
+#     stp_df = pd.DataFrame({'p': p_intermediate, 't': t_intermediate, 's': sal_intermediate})
+
+    for ii in range(len(month_df)):
+        new = newdf.iloc[ii].values
+        point = Point(new)
+        if isinstance(month_df['p'].iloc[ii], int) or isinstance(month_df['p'].iloc[ii], float) or isinstance(month_df['t'].iloc[ii], int) or isinstance(month_df['t'].iloc[ii], float):
+            pass
+        elif polygon_w.contains(point) == True:
+#         elif polygon_x.contains(point) == True or polygon_y.contains(point) == True or polygon_t.contains(point) == True or polygon_w.contains(point) == True or polygon_v.contains(point) == True:
+            CT = gsw.CT_from_pt(month_df['s'].iloc[ii],month_df['t'].iloc[ii])
+            DENS = gsw.sigma0(month_df['s'].iloc[ii],CT)
+            pt_df = pd.DataFrame({'p': month_df['p'].iloc[ii],'t': month_df['t'].iloc[ii], 's': month_df['s'].iloc[ii], 'CT': CT, 'DENSMLD': DENS}) 
+            df_ptsnew = pt_df.dropna()
+            df_final = pd.DataFrame(df_ptsnew.values)
+            
+            l=[i for i in df_final[0] if i<=10] # change back to 6
+            if len(l) > 0:
+                surfaceval = []
+                numrange = []
+                for iii in range(len(l)):
+                    val = df_final[4][iii]
+                    numrange.append(iii)
+                    surfaceval.append(val)            
+            surfacevalmean = statistics.mean(surfaceval)
+            densfin = []
+            tempfin = []
+            pressurefin = []
+            salfin = []
+            for iii in range(numrange[-1],len(df_final)):
+                tempfin.append(df_final[1][iii])
+                pressurefin.append(df_final[0][iii])
+                salfin.append(df_final[2][iii])
+                densfin.append(df_final[4][iii])
+            d = {'temp': list(reversed(tempfin)), 'sal': list(reversed(salfin)), 'pressure': list(reversed(pressurefin)),'density': list(reversed(densfin))}
+            dunreversed = {'temp': list(tempfin), 'sal': list(salfin), 'pressure': list(pressurefin), 'density': list(densfin)}
+            dffinunreversed = pd.DataFrame(dunreversed)
+            print(dffinunreversed)
+            print(surfaceval)
+            dffin = pd.DataFrame(d)
+            
+            for ix in range(len(dffinunreversed)):
+                if dffinunreversed.at[len(dffinunreversed)-1,'density'] <= (surfacevalmean + 0.03) and dffinunreversed.at[len(dffinunreversed)-1,'density'] >= (surfacevalmean - 0.03):
+                    if month_df['depth'].iloc[ii] <= 300:
+                        seasonyeardepth.append(dffinunreversed.at[len(dffinunreversed)-1,'pressure'])
+                        seasonyeartemp.append(dffinunreversed.at[len(dffinunreversed)-1,'temp'])
+                        seasonyearsal.append(dffinunreversed.at[len(dffinunreversed)-1,'sal'])
+                        seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                        floors.append(month_df['depth'].iloc[ii])
+                        lat.append(month_df['lat'].iloc[ii])
+                        lon.append(month_df['lon'].iloc[ii])
+                        lonneg.append(month_df['lon'].iloc[ii]*-1)
+                        counterii.append(ii)
+                        
+                        fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+                        ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+                        ax2.plot(df_final[2],df_final[0]*-1,color='red')
+                        ax3.plot(df_final[4],df_final[0]*-1,color='black')
+                        ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                        ax3.axhline(y=dffinunreversed.at[len(dffinunreversed)-1,'pressure']*-1, color='green', linestyle='--')
+#                         seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+#                         print(dffinunreversed.at[ix,'pressure'])
+                        print('')
+                        break
+                        
+                    break
+                elif dffinunreversed.at[ix,'density'] >= (surfacevalmean - 0.03) and dffinunreversed.at[ix,'density'] <= (surfacevalmean + 0.03):
+                    pass
+                else:
+                    if dffinunreversed.at[ix,'pressure'] >= (month_df['depth'].iloc[ii] - 6): # ALL MIXED
+                        if dffinunreversed.at[ix,'pressure'] == dffinunreversed.at[len(dffinunreversed)-1,'pressure']:
+                            if dffinunreversed.at[ix,'pressure'] <= (month_df['depth'].iloc[ii] - 15):
+                                pass
+                            else:
+                                if month_df['depth'].iloc[ii] <= 300:
+                                    seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                                    seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                                    seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                                    seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                                    floors.append(month_df['depth'].iloc[ii])
+                                    lat.append(month_df['lat'].iloc[ii])
+                                    lon.append(month_df['lon'].iloc[ii])
+                                    lonneg.append(month_df['lon'].iloc[ii]*-1)
+                                    counterii.append(ii)
+                                    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+                                    ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+                                    ax2.plot(df_final[2],df_final[0]*-1,color='red')
+                                    ax3.plot(df_final[4],df_final[0]*-1,color='black')
+#                                     print(dffinunreversed.at[ix,'pressure'])
+                                    ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                                    print('')
+                                    break
+                        else:
+                            if month_df['depth'].iloc[ii] <= 300:
+                                seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                                seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                                seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                                seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                                floors.append(month_df['depth'].iloc[ii])
+                                lat.append(month_df['lat'].iloc[ii])
+                                lon.append(month_df['lon'].iloc[ii])
+                                lonneg.append(month_df['lon'].iloc[ii]*-1)
+                                counterii.append(ii)
+                                fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+                                ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+                                ax2.plot(df_final[2],df_final[0]*-1,color='red')
+                                ax3.plot(df_final[4],df_final[0]*-1,color='black')
+#                                 print(dffinunreversed.at[ix,'pressure'])
+                                ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                                print('')
+                                break
+                    elif dffinunreversed.at[ix,'pressure'] == 0:
+                        pass
+                    elif ix == 0: 
+                        if month_df['depth'].iloc[ii] <= 300:
+                            seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                            seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                            seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                            seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                            floors.append(month_df['depth'].iloc[ii])
+                            lat.append(month_df['lat'].iloc[ii])
+                            lon.append(month_df['lon'].iloc[ii])
+                            lonneg.append(month_df['lon'].iloc[ii]*-1)
+                            counterii.append(ii)
+                            fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+                            ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+                            ax2.plot(df_final[2],df_final[0]*-1,color='red')
+                            ax3.plot(df_final[4],df_final[0]*-1,color='black')
+#                             print(dffinunreversed.at[ix,'pressure'])
+                            ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                            print('')
+                            break
+                    else: # Well-defined mixed layer detected
+                        if month_df['depth'].iloc[ii] <= 300:
+                            seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                            seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                            seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                            seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                            floors.append(month_df['depth'].iloc[ii])
+                            lat.append(month_df['lat'].iloc[ii])
+                            lon.append(month_df['lon'].iloc[ii])
+                            lonneg.append(month_df['lon'].iloc[ii]*-1)
+                            counterii.append(ii)
+                            fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+                            ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+                            ax2.plot(df_final[2],df_final[0]*-1,color='red')
+                            ax3.plot(df_final[4],df_final[0]*-1,color='black')
+#                             print(dffinunreversed.at[ix,'pressure'])
+                            ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                            print('')
+#                             seasonyeardepth.append(dffin.at[ix,'pressure'])
+                            break
+                    break
+
+    inlat = []; inlon = []; date = []
+    for timer in counterii:
+        inlat.append(newdf['lat'][timer])
+        inlon.append(newdf['lon'][timer])
+        date.append(newdf['date'][timer])                 
+    if len(seasonyeardens) > 0:    
+        print(year)
+#         print(seasonyeardens)
+#         print(inlat)
+#         print(inlon)
+#         print(date)
+        full = pd.DataFrame({'mld': seasonyeardepth,'lat': lat, 'lon': lon, 'date': date}) 
+#         print(full)
+#         print(len(full))
+        finallatestdepth.append(seasonyeardepth)
+#### -------------------------------------------------- ####
+pointstouse = []; finallatestdepth = []
+finalfinaldepth = []; finalfinalratio = []; filteredMLDlist = []; meanfilteredMLDlist = []; stdfilteredMLDlist = []; years = []; bananasplitmean = []; bananasplitstd = [];floormean = [];floorstd = []; latfinal = []; lonfinal = []; ratiofinal = [];bottomdfinal = []; filteredfloorslist = [];zi_listofarrays = []
+
+for year in range(1993,2019):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)]
+    lat_intermediate = []; lon_intermediate = []; p_intermediate = []; t_intermediate = []; yd_intermediate = []; sal_intermediate = []
+    finaldepth = []; finallat = [];finallon = []
+    seasonyeardepth = []; seasonyeartemp = [];seasonyearsal = []; seasonyeardens = []; counterii = []; floors = []; floor_intermediate = []; s_intermediate = [];seasonyearsal = []; lat = []; lon = []; lonneg = []
+    
+    for i in range(len(npfile)):
+        yd = npfile[i]['yd']
+        p = npfile[i]['p']
+        s = npfile[i]['s']
+        t = npfile[i]['t']
+        gear = npfile[i]['gear']
+        floordepth = npfile[i]['depth']
+        if gear == 'Bottle':
+            pass
+        elif yd > 90 and yd <= 120:
+            lat_intermediate.append(npfile[i]['lat'])
+            lon_intermediate.append(npfile[i]['lon'])
+            p_intermediate.append(npfile[i]['p'])
+            t_intermediate.append(npfile[i]['t'])
+            yd_intermediate.append(npfile[i]['yd'])
+            sal_intermediate.append(npfile[i]['s'])
+            floor_intermediate.append(npfile[i]['depth'])
+    month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate,'depth': floor_intermediate, 's': sal_intermediate})
+#     month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate, 's': sal_intermediate})
+    newdf = pd.DataFrame({'lon': lon_intermediate,'lat': lat_intermediate,'date': yd_intermediate})
+#     stp_df = pd.DataFrame({'p': p_intermediate, 't': t_intermediate, 's': sal_intermediate})
+
+    for ii in range(len(month_df)):
+        new = newdf.iloc[ii].values
+        point = Point(new)
+        if isinstance(month_df['p'].iloc[ii], int) or isinstance(month_df['p'].iloc[ii], float) or isinstance(month_df['t'].iloc[ii], int) or isinstance(month_df['t'].iloc[ii], float):
+            pass
+        elif polygon_y.contains(point) == True:
+#         elif polygon_x.contains(point) == True or polygon_y.contains(point) == True or polygon_t.contains(point) == True or polygon_w.contains(point) == True or polygon_v.contains(point) == True:
+            CT = gsw.CT_from_pt(month_df['s'].iloc[ii],month_df['t'].iloc[ii])
+            DENS = gsw.sigma0(month_df['s'].iloc[ii],CT)
+            pt_df = pd.DataFrame({'p': month_df['p'].iloc[ii],'t': month_df['t'].iloc[ii], 's': month_df['s'].iloc[ii], 'CT': CT, 'DENSMLD': DENS}) 
+            df_ptsnew = pt_df.dropna()
+            df_final = pd.DataFrame(df_ptsnew.values)
+            
+            l=[i for i in df_final[0] if i<=6] # change back to 6
+            if len(l) > 0:
+                surfaceval = []
+                numrange = []
+                for iii in range(len(l)):
+                    val = df_final[4][iii]
+                    numrange.append(iii)
+                    surfaceval.append(val)            
+            surfacevalmean = statistics.mean(surfaceval)
+            densfin = []
+            tempfin = []
+            pressurefin = []
+            salfin = []
+            for iii in range(numrange[-1],len(df_final)):
+                tempfin.append(df_final[1][iii])
+                pressurefin.append(df_final[0][iii])
+                salfin.append(df_final[2][iii])
+                densfin.append(df_final[4][iii])
+            d = {'temp': list(reversed(tempfin)), 'sal': list(reversed(salfin)), 'pressure': list(reversed(pressurefin)),'density': list(reversed(densfin))}
+            dunreversed = {'temp': list(tempfin), 'sal': list(salfin), 'pressure': list(pressurefin), 'density': list(densfin)}
+            dffinunreversed = pd.DataFrame(dunreversed)
+            dffin = pd.DataFrame(d)
+            
+            for ix in range(len(dffinunreversed)):
+                if dffinunreversed.at[len(dffinunreversed)-1,'density'] <= (surfacevalmean + 0.03) and dffinunreversed.at[len(dffinunreversed)-1,'density'] >= (surfacevalmean - 0.03):
+                    if month_df['depth'].iloc[ii] <= 300:
+#                         seasonyeardepth.append(dffinunreversed.at[len(dffinunreversed)-1,'pressure'])
+                        seasonyeartemp.append(dffinunreversed.at[len(dffinunreversed)-1,'temp'])
+                        seasonyearsal.append(dffinunreversed.at[len(dffinunreversed)-1,'sal'])
+                        seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                        floors.append(month_df['depth'].iloc[ii])
+                        lat.append(month_df['lat'].iloc[ii])
+                        lon.append(month_df['lon'].iloc[ii])
+                        lonneg.append(month_df['lon'].iloc[ii]*-1)
+                        counterii.append(ii)
+                        
+#                         fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+#                         ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+#                         ax2.plot(df_final[2],df_final[0]*-1,color='red')
+#                         ax3.plot(df_final[4],df_final[0]*-1,color='black')
+#                         ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='green', linestyle='--')
+#                         ax3.axhline(y=dffinunreversed.at[len(dffinunreversed)-1,'pressure']*-1, color='green', linestyle='-')
+                        seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+#                         print(dffinunreversed.at[ix,'pressure'])
+#                         print('')
+#                         break
+                        
+                    break
+                elif dffinunreversed.at[ix,'density'] >= (surfacevalmean - 0.03) and dffinunreversed.at[ix,'density'] <= (surfacevalmean + 0.03):
+                    pass
+                else:
+                    if dffinunreversed.at[ix,'pressure'] >= (month_df['depth'].iloc[ii] - 6): # ALL MIXED
+                        if dffinunreversed.at[ix,'pressure'] == dffinunreversed.at[len(dffinunreversed)-1,'pressure']:
+                            if dffinunreversed.at[ix,'pressure'] <= (month_df['depth'].iloc[ii] - 15):
+                                pass
+                            else:
+                                if month_df['depth'].iloc[ii] <= 300:
+                                    seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                                    seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                                    seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                                    seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                                    floors.append(month_df['depth'].iloc[ii])
+                                    lat.append(month_df['lat'].iloc[ii])
+                                    lon.append(month_df['lon'].iloc[ii])
+                                    lonneg.append(month_df['lon'].iloc[ii]*-1)
+                                    counterii.append(ii)
+#                                     fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+#                                     ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+#                                     ax2.plot(df_final[2],df_final[0]*-1,color='red')
+#                                     ax3.plot(df_final[4],df_final[0]*-1,color='black')
+# #                                     print(dffinunreversed.at[ix,'pressure'])
+#                                     ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='purple', linestyle='--')
+#                                     print('')
+#                                     break
+                        else:
+                            if month_df['depth'].iloc[ii] <= 300:
+                                seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                                seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                                seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                                seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                                floors.append(month_df['depth'].iloc[ii])
+                                lat.append(month_df['lat'].iloc[ii])
+                                lon.append(month_df['lon'].iloc[ii])
+                                lonneg.append(month_df['lon'].iloc[ii]*-1)
+                                counterii.append(ii)
+#                                 fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+#                                 ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+#                                 ax2.plot(df_final[2],df_final[0]*-1,color='red')
+#                                 ax3.plot(df_final[4],df_final[0]*-1,color='black')
+# #                                 print(dffinunreversed.at[ix,'pressure'])
+#                                 ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+#                                 print('')
+#                                 break
+                    elif dffinunreversed.at[ix,'pressure'] == 0:
+                        pass
+                    elif ix == 0: 
+                        if month_df['depth'].iloc[ii] <= 300:
+                            seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                            seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                            seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                            seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                            floors.append(month_df['depth'].iloc[ii])
+                            lat.append(month_df['lat'].iloc[ii])
+                            lon.append(month_df['lon'].iloc[ii])
+                            lonneg.append(month_df['lon'].iloc[ii]*-1)
+                            counterii.append(ii)
+#                             fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+#                             ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+#                             ax2.plot(df_final[2],df_final[0]*-1,color='red')
+#                             ax3.plot(df_final[4],df_final[0]*-1,color='black')
+# #                             print(dffinunreversed.at[ix,'pressure'])
+#                             ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='brown', linestyle='--')
+#                             print('')
+#                             break
+                    else: # Well-defined mixed layer detected
+                        if month_df['depth'].iloc[ii] <= 300:
+                            seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                            seasonyeartemp.append(dffinunreversed.at[ix,'temp'])
+                            seasonyearsal.append(dffinunreversed.at[ix,'sal'])
+                            seasonyeardens.append(dffinunreversed.at[len(dffinunreversed)-1,'density'])
+                            floors.append(month_df['depth'].iloc[ii])
+                            lat.append(month_df['lat'].iloc[ii])
+                            lon.append(month_df['lon'].iloc[ii])
+                            lonneg.append(month_df['lon'].iloc[ii]*-1)
+                            counterii.append(ii)
+#                             fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+#                             ax1.plot(df_final[1],df_final[0]*-1,color='blue')
+#                             ax2.plot(df_final[2],df_final[0]*-1,color='red')
+#                             ax3.plot(df_final[4],df_final[0]*-1,color='black')
+# #                             print(dffinunreversed.at[ix,'pressure'])
+#                             ax3.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='orange', linestyle='--')
+#                             print('')
+# #                             seasonyeardepth.append(dffin.at[ix,'pressure'])
+#                             break
+                    break
+
+    inlat = []; inlon = []; date = []
+    for timer in counterii:
+        inlat.append(newdf['lat'][timer])
+        inlon.append(newdf['lon'][timer])
+        date.append(newdf['date'][timer])                 
+    if len(seasonyeardens) > 0:    
+        print(year)
+#         print(seasonyeardens)
+#         print(inlat)
+#         print(inlon)
+#         print(date)
+        full = pd.DataFrame({'mld': seasonyeardepth,'lat': lat, 'lon': lon, 'date': date}) 
+#         print(full)
+#         print(len(full))
+        finallatestdepth.append(seasonyeardepth)
+    
+    for x in range(len(date)):
+        use=DS.sel(time=slice('{}-04-01'.format(year),'{}-04-30'.format(year))) 
+        locate_date = use.sel(time=use.time.dt.day==(date[x]) - 90) # - 273
+        mld_locate_date = locate_date.mlotst.values[0]
+#         mld_locate_date = locate_date.mlotst.values
+    
+        lat = np.array(locate_date.mlotst['latitude'][:])
+        long = np.array(locate_date.mlotst['longitude'][:])
+    
+        lonneg = [float(i)*-1 for i in inlon]
+#         print(inlon)
+#         print(lonneg)
+        distanceslat = []; distanceslon = []
+        for i in range(133):
+            distanceslat.append((inlat[x] - lat[i])**2)
+            index_min_lat = min(range(len(distanceslat)), key=distanceslat.__getitem__)
+        for ii in range(181):
+            distanceslon.append((lonneg[x] - long[ii])**2)
+            index_min_lon = min(range(len(distanceslon)), key=distanceslon.__getitem__)
+        lat_index_use, lon_index_use = index_min_lat, index_min_lon
+        pointstouse.append(mld_locate_date[lat_index_use, lon_index_use]) 
+mld_nefsc = sum(finallatestdepth, [])
+# print(mld_nefsc)
+print(len(mld_nefsc))
+# print(pointstouse)
+print(len(pointstouse))
+x = mld_nefsc
+y = pointstouse
+ind = np.where(np.isnan(pointstouse))[0]
+print(ind)
+for x in ind:
+    pointstouse.pop(x)
+    mld_nefsc.pop(x)
+print(len(mld_nefsc))
+print(len(pointstouse))
+ind = np.where(np.isinf(pointstouse))[0]
+new_ind = np.where(np.isinf(mld_nefsc))[0]
+print(ind)
+print(new_ind)
+for y in ind:
+    pointstouse.pop(y)
+    mld_nefsc.pop(y)
+print(len(mld_nefsc))
+print(len(pointstouse))
+
+xy = np.vstack([mld_nefsc,pointstouse])
+from scipy.stats import gaussian_kde
+z = gaussian_kde(xy)(xy)
+
+newz = z * 10000 # I DON'T KNOW WHY.
+
+plt.figure(figsize=(8, 8))
+plt.xlim(0,120)
+plt.ylim(0,120)
+# plt.scatter(mld_nefsc, pointstouse, color='blue',s=5)
+plt.scatter(mld_nefsc, pointstouse, c=newz, s=20, cmap = plt.cm.jet, vmin =0, vmax = 50.0, edgecolor='')
+plt.colorbar()
+plt.show()
