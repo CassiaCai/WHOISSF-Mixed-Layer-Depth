@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+# shortened and clean version
+
+seasonyeardepth = []; countwithinpolygon = []
+for year in range(1993,2019):
+    filename = 'casts_{}.mat'.format(year)
+    file = scipy.io.loadmat(filename,squeeze_me=True)
+    npfile = file['casts_{}'.format(year)]
+    
+    lat_intermediate = []; lon_intermediate = []; yd_intermediate = []
+    p_intermediate = []; t_intermediate = []; sal_intermediate = []
+    floor_intermediate = []; surfaceval_list = []
+    
+    for i in range(len(npfile)):
+        yd = npfile[i]['yd']
+        p = npfile[i]['p']
+        s = npfile[i]['s']
+        t = npfile[i]['t']
+        gear = npfile[i]['gear']
+        floordepth = npfile[i]['depth']
+        if yd > 334 and yd <= 365:
+            lat_intermediate.append(npfile[i]['lat'])
+            lon_intermediate.append(npfile[i]['lon'])
+            p_intermediate.append(npfile[i]['p'])
+            t_intermediate.append(npfile[i]['t'])
+            yd_intermediate.append(npfile[i]['yd'])
+            sal_intermediate.append(npfile[i]['s'])
+            floor_intermediate.append(npfile[i]['depth'])
+    month_df = pd.DataFrame({'day': yd_intermediate,'lon': lon_intermediate,'lat': lat_intermediate, 'p': p_intermediate, 't': t_intermediate,'depth': floor_intermediate, 's': sal_intermediate})
+    newdf = pd.DataFrame({'lon': lon_intermediate,'lat': lat_intermediate,'date': yd_intermediate})
+    for ii in range(len(month_df)):
+        new = newdf.iloc[ii].values
+        point = Point(new)
+        if isinstance(month_df['p'].iloc[ii], int) or isinstance(month_df['p'].iloc[ii], float) or isinstance(month_df['t'].iloc[ii], int) or isinstance(month_df['t'].iloc[ii], float):
+            pass
+        elif polygon_y.contains(point) == True:
+            CT = gsw.CT_from_pt(month_df['s'].iloc[ii],month_df['t'].iloc[ii])
+            DENS = gsw.sigma0(month_df['s'].iloc[ii],CT)
+            pt_df = pd.DataFrame({'p': month_df['p'].iloc[ii],'t': month_df['t'].iloc[ii], 's': month_df['s'].iloc[ii], 'CT': CT, 'DENSMLD': DENS}) 
+            df_ptsnew = pt_df.dropna()
+            df_final = pd.DataFrame(df_ptsnew.values)
+            countwithinpolygon.append(1)
+
+            l=[i for i in df_final[0] if i<=4] 
+            if len(l) > 0:
+                surfaceval = []
+                numrange = []
+                for iii in range(len(l)):
+                    val = df_final[4][iii]
+                    numrange.append(iii)
+                    surfaceval.append(val)            
+            surfacevalmean = statistics.mean(surfaceval)
+            densfin = []; tempfin = []; pressurefin = []; salfin = []
+            for iii in range(numrange[-1],len(df_final)):
+                tempfin.append(df_final[1][iii])
+                pressurefin.append(df_final[0][iii])
+                salfin.append(df_final[2][iii])
+                densfin.append(df_final[4][iii])
+            d = {'temp': list(reversed(tempfin)), 'sal': list(reversed(salfin)), 'pressure': list(reversed(pressurefin)),'density': list(reversed(densfin))}
+            dunreversed = {'temp': list(tempfin), 'sal': list(salfin), 'pressure': list(pressurefin), 'density': list(densfin)}
+            dffinunreversed = pd.DataFrame(dunreversed)
+            dffin = pd.DataFrame(d)
+            
+            for ix in range(len(dffinunreversed)):
+                if dffinunreversed.at[ix,'density'] >= (surfacevalmean - 0.03) and dffinunreversed.at[ix,'density'] <= (surfacevalmean + 0.03):
+                    if dffinunreversed.at[len(dffinunreversed)-1,'density'] <= (surfacevalmean + 0.03) and dffinunreversed.at[len(dffinunreversed)-1,'density'] >= (surfacevalmean - 0.03):
+                        looknow = list(dffinunreversed['density'].values)
+                        looknow2 = [i for i in looknow if i >= (surfacevalmean + 0.03)]
+                        looknow3 = [i for i in looknow if i <= (surfacevalmean - 0.03)]
+                        if len(looknow2) == 0 and len(looknow3) == 0:
+                            if dffinunreversed.at[len(dffinunreversed)-1,'pressure'] >= (month_df['depth'].iloc[ii] - 5):
+                                fig, (ax1) = plt.subplots(1,1)
+                                ax1.plot(df_final[4],df_final[0]*-1,color='black')
+                                ax1.axhline(y=dffinunreversed.at[len(dffinunreversed)-1,'pressure']*-1, color='r', linestyle='--')
+                                seasonyeardepth.append(dffinunreversed.at[len(dffinunreversed)-1,'pressure'])
+                                break
+                            else:
+                                pass
+                    else:
+                        pass
+                elif dffinunreversed.at[ix,'density'] <= (surfacevalmean - 0.03) or dffinunreversed.at[ix,'density'] >= (surfacevalmean + 0.03):
+                    if dffinunreversed.at[ix,'pressure'] <= 5.0:
+                        pass
+                    else:
+                        seasonyeardepth.append(dffinunreversed.at[ix,'pressure'])
+                        fig, (ax1) = plt.subplots(1,1)
+                        ax1.plot(df_final[4],df_final[0]*-1,color='purple')
+                        ax1.axhline(y=dffinunreversed.at[ix,'pressure']*-1, color='r', linestyle='--')
+                    break
